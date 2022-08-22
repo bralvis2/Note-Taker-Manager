@@ -18,7 +18,7 @@ notes.get('/', (req, res) => {
 //POST Route for appending notes
 notes.post('/', (req, res) => {
     console.info(`${req.method} request received for notes`);
-    console.log(req.body);
+    // console.log(req.body);
 
     const { title, text } = req.body;
 
@@ -29,6 +29,7 @@ notes.post('/', (req, res) => {
             id: uuid(),
         };
 
+        // reads the file and adds a new note at the end of the db
         return fs.readFile('db/db.json', 'utf8', (err, data) => {
             if (err) {
                 console.error(err);
@@ -36,6 +37,7 @@ notes.post('/', (req, res) => {
                 const notes = JSON.parse(data);
                 notes.push(newNote);
 
+                // adds the note as a string
                 fs.writeFile('db/db.json', JSON.stringify(notes), () => {
                     res.json(data);
                 });
@@ -45,6 +47,27 @@ notes.post('/', (req, res) => {
     }
 
     console.log(newNote);
+});
+
+// DELETE Route for deleting notes
+notes.delete('/:id', (req, res) => {
+    console.info(`${req.method} request received for notes`);
+     const noteID = req.params.id;
+     
+     // read the file and fileters for note's id
+     return fs.readFile('db/db.json', 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            const notes = JSON.parse(data);
+            const deleteNote = notes.filter(note => noteID !==note.id);
+            
+            // deletes the note by removing the note selected
+            fs.writeFile('db/db.json', JSON.stringify(deleteNote), () => {
+                res.json(data);
+            });
+        }
+     });
 })
 
 module.exports = notes;
